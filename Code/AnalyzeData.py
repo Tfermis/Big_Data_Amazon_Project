@@ -34,12 +34,11 @@ print "Opening DataSet"
 Data = pd.read_csv(path + originalFilesPath + "train.csv")
 
 ActionName =  Data.columns[0]
-
+ActionList =  Data[ActionName]
 
 for x in xrange(1, len(Data.columns)):
 	k = 0
 	ListName = Data.columns[x]
-	ActionList =  Data[Data.columns[0]]
 	CurrentList =  Data[Data.columns[x]]
 
 	CurrentDict = {}
@@ -53,10 +52,15 @@ for x in xrange(1, len(Data.columns)):
 				currentID.NegCount += 1
 		else:
 			CurrentDict[CurrentList[i]] = item(CurrentList[i])
+			if ActionList[i] == 1:
+				CurrentDict[CurrentList[i]].PosCount += 1
+			else:
+				CurrentDict[CurrentList[i]].NegCount += 1
 
 	IDList = []
 	PosList = []
 	NegList = []
+	NumOccurences = []
 
 	for value in CurrentDict.values():
 		IDList.append(value.ID)
@@ -68,8 +72,9 @@ for x in xrange(1, len(Data.columns)):
 			NegList.append(value.NegCount / float(value.PosCount + value.NegCount))
 		else:
 			NegList.append(0)
+		NumOccurences.append(value.NegCount + value.PosCount)
 
-	CurrentOut = pd.DataFrame({'ID' : IDList, 'Positive' : PosList, 'Negative': NegList})
+	CurrentOut = pd.DataFrame({'ID' : IDList, 'Positive' : PosList, 'Negative': NegList, 'TotalOccurences' : NumOccurences})
 
 	CurrentOut.to_csv(path + attributePath + ListName + ".csv")
 
