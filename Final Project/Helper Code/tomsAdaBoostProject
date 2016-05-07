@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.cross_validation import cross_val_score
+from sklearn.ensemble import AdaBoostClassifier
+
+from sklearn import preprocessing
+from sklearn import cross_validation
+from sklearn import datasets
+from sklearn import svm
+from numpy import *
+
+path = "/home/ee379k/EE379K/tfe95/Big_Data_Amazon_Project"
+
+attributePath = '/Attributes/'
+
+originalFilesPath = '/Original Files/'
+
+
+print "Opening DataSet"
+
+Data = pd.read_csv(path + originalFilesPath + "train.csv", sep=r'\s*,\s*', skiprows = 1, names=['action','resource','mgr_id','role_rollup_1','role_rollup_2','role_deptname','role_title','role_family_desc','role_family','role_code'], index_col=False)
+TestData = pd.read_csv(path + originalFilesPath + "test.csv", sep=r'\s*,\s*', skiprows = 1, names=['action','resource','mgr_id','role_rollup_1','role_rollup_2','role_deptname','role_title','role_family_desc','role_family','role_code'], index_col=False)
+
+#Grabs salary column for use as .target
+grantedAccess = Data['action'] 
+grantedAccessTest = TestData['action'] 
+
+
+#Deletes once done
+del Data['action']
+del TestData['action']
+
+
+#Converts data sets to recognizable array format
+dataArray = array(Data) 
+testArray = array(TestData)
+accessArray = array(grantedAccess)
+
+
+clf = AdaBoostClassifier(n_estimators = 400, learning_rate = .6)
+clf.fit(dataArray,accessArray)
+CurrentOut = pd.DataFrame({'Id' : TestData.index})
+CurrentOut['Action'] = clf.predict(testArray)
+
+print  CurrentOut.to_csv('AdaBoost.csv', sep=',', index=False)
+
+
+#score = cross_val_score(clf, dataArray, accessArray)
+#score = score.mean()     
+#print score
